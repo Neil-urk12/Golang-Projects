@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Server-Sent Events Demo</title>
+</head>
+
+<body>
+    <h1>Server-Sent Events Demo</h1>
+    <div id="event-data">
+        <!-- Event data will be displayed here -->
+    </div>
+
+    <script>
+        const eventDataDiv = document.getElementById('event-data');
+        const eventSource = new EventSource('http://localhost:8080/events');
+
+        eventSource.onopen = function (event) {
+            console.log("SSE connection opened");
+            eventDataDiv.innerHTML += "<p>SSE connection opened.</p>";
+        };
+
+        eventSource.onmessage = function (event) {
+            console.log("Received event:", event.data);
+            eventDataDiv.innerHTML += "<p>Received data: " + event.data + "</p>";
+        };
+
+        eventSource.onerror = function (event) {
+            console.error("SSE error:", event);
+            eventDataDiv.innerHTML += "<p><b>SSE Error Occurred. Check console.</b></p>";
+            eventSource.close(); // Optionally close the connection on error
+        };
+
+        eventSource.addEventListener('custom-event', function (event) { // Example listening for a custom event (if server sent `event: custom-event`)
+            console.log("Received custom event:", event.data);
+            eventDataDiv.innerHTML += "<p><b>Custom Event Received:</b> " + event.data + "</p>";
+        });
+
+    </script>
+</body>
+
+</html>
+
