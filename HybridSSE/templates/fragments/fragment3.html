@@ -1,0 +1,22 @@
+<div style="background-color: #fff0f0; padding: 20px;">
+    <h2>Fragment 3</h2>
+    <p>This is the third fragment with a light red background.</p>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>First</td>
+            <td>123</td>
+        </tr>
+        <tr>
+            <td>Second</td>
+            <td>456</td>
+        </tr>
+    </table>
+    <p>Last updated: <time datetime="2025-03-10" id="timestamp"></time></p>
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+    </script>
+</div>

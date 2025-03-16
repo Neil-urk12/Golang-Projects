@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTMX SSE Demo</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.2" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        #content {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 200px;
+            transition: all 0.3s ease;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>HTMX Server-Sent Events Demo</h1>
+    <div>
+        <button hx-get="/static/fragments/fragment1.html" hx-target="#content" hx-swap="innerHTML">Load Fragment
+            1</button>
+        <button hx-get="/static/fragments/fragment2.html" hx-target="#content" hx-swap="innerHTML">Load Fragment
+            2</button>
+        <button hx-get="/static/fragments/fragment3.html" hx-target="#content" hx-swap="innerHTML">Load Fragment
+            3</button>
+    </div>
+
+    <div class="status">
+        <div class="status">
+            <p>Status: <span id="connection-status" sse-swap="message">Disconnected</span></p>
+            <div id="sse-section">
+            </div>
+        </div>
+        <div id="content" hx-ext="sse" sse-connect="/events" sse-swap="message">
+            <p>Click a button above to load content or use an external POST request to update this content.</p>
+            <code>
+            curl -X POST http://localhost:8080/send -d "fragment=fragment1"
+            </code>
+        </div>
+
+        <script>
+            document.body.addEventListener('sse:open', function () {
+                document.getElementById('connection-status').textContent = 'Connected';
+                document.getElementById('connection-status').style.color = 'green';
+            });
+
+            document.body.addEventListener('sse:error', function () {
+                document.getElementById('connection-status').textContent = 'Error/Disconnected';
+                document.getElementById('connection-status').style.color = 'red';
+            });
+        </script>
+        <script>
+            window.addEventListener('load', function () {
+                document.querySelector('.status button').click();
+            });
+        </script>
+</body>
+
+</html>
