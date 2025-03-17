@@ -32,7 +32,7 @@ func main() {
 	})
 
 	app.Use(logger.New())
-	
+
 	// Fragment data store
 	// Simulated employee database
 	type Employee struct {
@@ -77,26 +77,6 @@ func main() {
 		},
 	}
 
-	// Fragment rendering route
-	app.Get("/static/fragments/:fragment", func(c *fiber.Ctx) error {
-	    fragment := c.Params("fragment")
-	    fragmentName := strings.TrimSuffix(fragment, ".html")
-	    
-	    data, exists := fragmentData[fragmentName]
-	    if !exists {
-	        return c.Status(fiber.StatusNotFound).SendString("Fragment not found")
-	    }
-	    
-	    // Add timestamp to the data
-	    data["timestamp"] = time.Now().Format(time.RFC3339)
-	    
-	    return c.Render("fragments/"+fragmentName, data)
-	})
-	
-	app.Get("/", func(c *fiber.Ctx) error {
-	    return c.Render("index", fiber.Map{})
-	})
-
 	app.Get("/static/fragments/:fragment", func(c *fiber.Ctx) error {
 		fragment := c.Params("fragment")
 		fragmentName := strings.TrimSuffix(fragment, ".html")
@@ -109,7 +89,11 @@ func main() {
 		// Add timestamp to the data
 		data["timestamp"] = time.Now().Format(time.RFC3339)
 
-		return c.Render("fragments/"+fragment, data)
+		return c.Render("fragments/"+fragmentName, data)
+	})
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Render("index", fiber.Map{})
 	})
 
 	// SSE endpoint
@@ -170,15 +154,26 @@ func main() {
 			}
 		}
 
-		// Update fragment2 data with found employees
-		fragmentData["fragment2"] = fiber.Map{
-			"title":       "Employee Directory",
-			"description": fmt.Sprintf("Found %d employees", len(foundEmployees)),
-			"employees":   foundEmployees,
+		var fragmentToRender string
+		if len(foundEmployees) > 0 {
+			// Update fragment2 data with found employees
+			fragmentData["fragment2"] = fiber.Map{
+				"title":       "Employee Directory",
+				"description": fmt.Sprintf("Found %d employees", len(foundEmployees)),
+				"employees":   foundEmployees,
+			}
+			fragmentToRender = "fragment2"
+		} else {
+			// Use error fragment when no employees found
+			fragmentData["error"] = fiber.Map{
+				"title":   "No Results Found",
+				"message": fmt.Sprintf("No employees found matching IDs: %s", c.FormValue("ids")),
+			}
+			fragmentToRender = "error"
 		}
 
-		// Notify all clients to update fragment2
-		htmxInstruction := fmt.Sprintf("<div hx-get=\"/static/fragments/fragment2.html\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"#content\"></div>")
+		// Notify all clients to update with appropriate fragment
+		htmxInstruction := fmt.Sprintf("<div hx-get=\"/static/fragments/%s.html\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"#content\"></div>", fragmentToRender)
 
 		clientsMux.Lock()
 		for client := range clients {
