@@ -1,8 +1,29 @@
-<div style="background-color: #00de00; padding: 20px;">
-    <h2>Fragment 2</h2>
-    <p>This is the second fragment with a light green background.</p>
-    <p>Last updated: <time datetime="2025-03-10" id="timestamp"></time></p>
-    <script>
-        document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
-    </script>
+<div style="background-color: #28a745; padding: 20px;">
+    <h2>{{.title}}</h2>
+    <p>{{.description}}</p>
+    {{if .employees}}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background-color: rgba(0,0,0,0.1);">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">ID</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Name</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Position</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .employees}}
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{.ID}}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{.Name}}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{.Position}}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{.Department}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p>No employees found</p>
+    {{end}}
+    <p>Last updated: <time datetime="{{.timestamp}}">{{.timestamp}}</time></p>
 </div>
